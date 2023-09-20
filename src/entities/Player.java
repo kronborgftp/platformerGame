@@ -1,42 +1,37 @@
 package entities;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
+import static utilz.Constants.PlayerConstants.*;
+
+import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
+import javax.imageio.ImageIO;
 
-import static utils.Constants.PlayerConstants.*;
+import utilz.LoadSave;
 
 public class Player extends Entity {
-
     private BufferedImage[][] animations;
-    private int aniTick, aniIndex, aniSpeed = 15;
+    private int aniTick, aniIndex, aniSpeed = 25;
     private int playerAction = IDLE;
     private boolean moving = false, attacking = false;
     private boolean left, up, right, down;
     private float playerSpeed = 2.0f;
 
-    public Player(float x, float y) {
-        super(x, y);
+    public Player(float x, float y, int width, int height) {
+        super(x, y, width, height);
         loadAnimations();
     }
 
     public void update() {
-
         updatePos();
         updateAnimationTick();
         setAnimation();
-
     }
 
     public void render(Graphics g) {
-
-
-        g.drawImage(animations[playerAction][aniIndex], (int) x, (int) y, 256, 160, null);
-
+        g.drawImage(animations[playerAction][aniIndex], (int) x, (int) y, width, height, null);
     }
-
 
     private void updateAnimationTick() {
         aniTick++;
@@ -53,7 +48,6 @@ public class Player extends Entity {
     }
 
     private void setAnimation() {
-
         int startAni = playerAction;
 
         if (moving)
@@ -64,7 +58,7 @@ public class Player extends Entity {
         if (attacking)
             playerAction = ATTACK_1;
 
-        if(startAni != playerAction)
+        if (startAni != playerAction)
             resetAniTick();
     }
 
@@ -94,31 +88,21 @@ public class Player extends Entity {
     }
 
     private void loadAnimations() {
-        InputStream is = getClass().getResourceAsStream("/player_sprites.png");
-        try {
-            BufferedImage img = ImageIO.read(is);
 
-            animations = new BufferedImage[9][6];
-            for (int j = 0; j < animations.length; j++)
-                for (int i = 0; i < animations[j].length; i++)
-                    animations[j][i] = img.getSubimage(i * 64, j * 40, 64, 40);
+        BufferedImage img = LoadSave.GetSpriteAtlas(LoadSave.PLAYER_ATLAS);
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                is.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        animations = new BufferedImage[9][6];
+        for (int j = 0; j < animations.length; j++)
+            for (int i = 0; i < animations[j].length; i++)
+                animations[j][i] = img.getSubimage(i * 64, j * 40, 64, 40);
+
     }
 
     public void resetDirBooleans() {
         left = false;
         right = false;
-        down = false;
         up = false;
+        down = false;
     }
 
     public void setAttacking(boolean attacking) {
@@ -157,6 +141,4 @@ public class Player extends Entity {
         this.down = down;
     }
 
-
 }
-
